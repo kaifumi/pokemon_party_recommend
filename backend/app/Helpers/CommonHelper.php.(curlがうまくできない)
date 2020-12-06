@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Helpers;
+
+class CommonHelper{
+
+    // public static function getRandomNumber($min, $max)
+    // {
+    //     return rand($min, $max);
+    // }
+
+    /**
+     * curl関数
+     * @param string $url
+     * @param array $header
+     * @return string
+     */
+    public static function curl($url, $post = null, $header = null){
+        $conn = curl_init();
+        if($post != null){
+            curl_setopt($conn, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($conn, CURLOPT_POSTFIELDS, $post);
+        }
+        // サーバ証明書の検証は行わない。
+        curl_setopt($conn, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($conn, CURLOPT_SSL_VERIFYHOST, false);
+        // curl_execの実行結果を文字列として取得できるように設定
+        curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);
+        // 問い合わせ先のurlを指定
+        curl_setopt($conn, CURLOPT_URL,  $url);
+        if($header != null){
+            //ヘッダー追加オプション
+            //curl_setopt($conn, CURLOPT_HEADER, $header);
+            curl_setopt($conn, CURLOPT_HTTPHEADER, $header);
+        }
+        // 問い合わせを行い、その結果を取得
+        $result = curl_exec($conn);
+        // コネクションを切断
+        curl_close($conn);
+        return $result;
+    }
+
+    public static function curl_battle_env($url){
+      $path = "season.json";
+      $fp = fopen($path, 'w+');
+      $conn = curl_init();
+      // curl_setopt($conn, CURLOPT_CUSTOMREQUEST, 'POST');
+      // リクエストヘッダー 設定
+      $headers = array(
+        // 'Content-Type: application/json',
+        'accept: application/json, text/javascript, */*; q=0.01',
+        'countrycode: 304',
+        'authorization: Bearer',
+        'langcode: 1',
+        'user-agent: Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Mobile Safari/537.36',
+        'content-type: application/json'
+      );
+      // $conn = curl_init(str_replace(" ","%20",$url));
+      set_time_limit(0);
+      // サーバ証明書の検証は行わない。
+      curl_setopt($conn, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($conn, CURLOPT_SSL_VERIFYHOST, false);
+      // curl_execの実行結果を文字列として取得できるように設定
+      curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);
+      // 問い合わせ先のurlを指定
+      curl_setopt($conn, CURLOPT_URL, $url);
+      curl_setopt($conn, CURLOPT_HTTPHEADER, ['content-type: application/json']);
+
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, array('accept: application/json, text/javascript, */*; q=0.01'));
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, 'accept: application/json, text/javascript, */*; q=0.01');
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, array('countrycode: 304'));
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, array('authorization: Bearer'));
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, array('langcode: 1'));
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, array('user-agent: Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Mobile Safari/537.36'));
+
+      curl_setopt($conn, CURLOPT_HTTPHEADER, $headers);
+      // curl_setopt($conn, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+  
+      curl_setopt($conn, CURLOPT_RETURNTRANSFER, TRUE);
+      curl_setopt($conn, CURLOPT_FILE, $fp);
+      dd($conn);
+      // 問い合わせを行い、その結果を取得
+      curl_exec($conn);
+      // コネクションを切断
+      curl_close($conn);
+      fclose($fp);
+    }
+}
