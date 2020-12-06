@@ -39,12 +39,13 @@ class getRank extends Command
      */
     public function handle()
     {
-      // $url = 'https://pokeapi.co/api/v2/pokemon/1';
-      // $res = CommonHelper::curl($url);
-      // $battle_env_url = 'https://api.battle.pokemon-home.com/cbd/competition/rankmatch/list';
-      // $battle_env = CommonHelper::curl_battle_env($battle_env_url);
+      // 使用するフォルダを作成
+      echo exec("mkdir JSON");
+      echo exec("mkdir JSON/POKEMON_INFO");
+      echo exec("mkdir JSON/RANKING");
+      echo exec("mkdir JSON/SEASON");
 
-      // 対戦環境をcurlで取得
+      // 対戦環境を取得
       $cmd = "curl https://api.battle.pokemon-home.com/cbd/competition/rankmatch/list \
               -H 'accept: application/json, text/javascript, */*; q=0.01' \
               -H 'countrycode: 304' \
@@ -62,11 +63,9 @@ class getRank extends Command
       // trueにして連想配列にする
       $battle_env = json_decode($json, true);
       fclose($fp);
-      // dd($battle_env);
+
       # タームごとに必要な情報だけを配列にまとめる
-      $terms = array();
-      // dd($season);
-      // dump($season['list']);
+      $terms = [];
       foreach ($battle_env['list'] as $data) {
         $id_num = array_keys($data)[0];
         foreach ($data as $id) {
@@ -105,6 +104,42 @@ class getRank extends Command
             echo exec($cmd);
           }
         }
+        // 他のtermも取得する場合はbreakをコメントしてください
+        break;
       }
+
+      // 最新環境ランキング取得
+      $recent_id       = $terms[0]['id'];
+      $fp              = fopen("../backend/JSON/RANKING/$recent_id-pokemons.json", 'r');
+      $json            = fgets($fp);
+      $pokemon_ranking = json_decode($json, true);
+      fclose($fp);
+
+      // 各ポケモンの情報を用意
+      $pokemons_info = [];
+      for ($i=0;$i<5;$i++) {
+        $j            = $i + 1;
+        $fp           = fopen("../backend/JSON/POKEMON_INFO/season-$recent_id/$recent_id-pokeinfo-$j.json", 'r');
+        $json         = fgets($fp);
+        $pokemon_data = json_decode($json, true);
+        fclose($fp);
+
+        foreach (array_keys($pokemon_data) as $index) {
+          $pokemons_info[$index] = $pokemon_data[$index];
+        }
+      }
+
+      // トップ30匹を抽出
+      $top_pokemons = array_slice($pokemon_ranking, 0, 30);
+      $with_poke_lists = [];
+      foreach ($top_pokemons as $pokemon) {
+
+        // よく一緒に選出されるポケモンリスト
+        $with_poke_list = $pokemons_info[$pokemon['id']][$pokemon['form']]["temoti"]["pokemon"];
+        $with_poke_lists[$pokemon['id']] = $with_poke_list;
+      }
+
+      $json = json_encode($with_poke_lists);
+      file_put_contents("poke_with_rank.json", $json);
     }
 }
