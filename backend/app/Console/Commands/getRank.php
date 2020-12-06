@@ -136,6 +136,9 @@ class getRank extends Command
 
         // よく一緒に選出されるポケモンリスト
         $with_poke_list = $pokemons_info[$pokemon['id']][$pokemon['form']]["temoti"]["pokemon"];
+        if ($pokemon['form'] != 0) {
+          $pokemon['id'] = $pokemon['id']."_".$pokemon['form'];
+        }
         $with_poke_lists[$pokemon['id']] = $with_poke_list;
       }
 
