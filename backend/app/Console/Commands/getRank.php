@@ -140,6 +140,6 @@ class getRank extends Command
       }
 
       $json = json_encode($with_poke_lists);
-      file_put_contents("poke_with_rank.json", $json);
+      file_put_contents("with_poke_lists.json", $json);
     }
 }

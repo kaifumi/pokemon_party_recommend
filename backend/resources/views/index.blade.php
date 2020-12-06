@@ -64,27 +64,25 @@
         </style>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
-
-            <div class="content">
-                <div class="title m-b-md">
-                    ポケモンレートバトル<br>
-                    おすすめパーティ
-                </div>
+        <div class="content">
+            <div class="title m-b-md">
+                ポケモンレートバトル<br>
+                おすすめパーティ
             </div>
+            <?php
+                $fp           = fopen("../with_poke_lists.json", 'r');
+                $json         = fgets($fp);
+                $with_poke_lists = json_decode($json, true);
+                fclose($fp);
+
+                foreach (array_keys($with_poke_lists) as $index) {
+                    echo $index . "<br>";
+                    foreach ($with_poke_lists[$index] as $pokemon) {
+                        echo $pokemon['id'].",";
+                    }
+                    echo "<br>";
+                }
+            ?>
         </div>
     </body>
 </html>
